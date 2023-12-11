@@ -1,6 +1,6 @@
 clamp_length = 70;
 clamp_depth = 40;
-clamp_space_height = 40;
+clamp_space_height = 38;
 clamp_outwards_thickness = 3;
 cable_holder_radius = 5;
 cable_holder_outwards_thickness = 1;

@@ -14,8 +14,8 @@ base_apothem = sqrt(3) / 2 * base_radius;
 // inter-piece distance, vertical means flat side to flat side
 vertical_ipd = base_apothem * 2;
 
-large_bend_circle_radius = vertical_ipd - .9 - path_radius;
-small_bend_circle_radius = 24 - path_radius;
+large_bend_circle_radius = vertical_ipd - .8 - path_radius;
+small_bend_circle_radius = 24 + .6 - path_radius;
 
 tower_radius = 26;
 tower_height = 70;
@@ -23,10 +23,9 @@ tower_inner_radius = 16;
 tower_inner_height = 3;
 
 /* === Rendering === */
-torus_detail = 32;
-rotate_extrude_detail = 64;
-draft_render_correction = $preview ? 0.01 : 0; // disable this if final rendering
-
+torus_detail = $preview ? 16 : 64;
+rotate_extrude_detail = $preview ? 32 : 128;
+csg_sub_correction = 0.01;
 
 /* === Colors (OpenSCAD only) === */
 primary_color = "white";
@@ -57,33 +56,65 @@ module bend_bottom_right() {
     circle(r = path_radius, $fn = torus_detail);
 }
 
-module port(x_dir = 1, y_dir = 1) {
-    c = base_radius;
-    b = base_radius / 2;
-    a = sqrt(pow(c, 2) - pow(b, 2));
-    port_x = (a - port_length / 2) * cos(30) + draft_render_correction;
-    port_y = (a - port_length / 2) * sin(30) + draft_render_correction;
-    
+module port_lateral_sub(y_dir = 1, width = path_radius * 2) {
     translate([
-        x_dir * port_x,
-        y_dir * port_y,
-        (base_thickness + port_bottom_offset) * 0.5 + draft_render_correction
+        0,
+        y_dir * base_apothem,
+        (base_thickness + port_bottom_offset) * 0.5 + csg_sub_correction
     ])
-    rotate([0, 0, 60 * -x_dir])
+    color(primary_color)
     cube([
-        path_radius * 2, 
+        width, 
         port_length, 
         base_thickness - port_bottom_offset
     ], true);
 }
 
+module port_sub(x_dir = 1, y_dir = 1, width = path_radius * 2) {
+    c = base_radius;
+    a = c * sin(60);
+    //b = base_radius / 2;
+    //a = sqrt(pow(c, 2) - pow(b, 2));
+    port_x = (a - port_length / 2) * cos(30) + csg_sub_correction;
+    port_y = (a - port_length / 2) * sin(30) + csg_sub_correction;
+    
+    translate([
+        x_dir * port_x,
+        y_dir * port_y,
+        (base_thickness + port_bottom_offset) * 0.5 + csg_sub_correction
+    ])
+    rotate([0, 0, 60 * -x_dir * y_dir])
+    color(primary_color)
+    cube([
+        width, 
+        port_length, 
+        base_thickness - port_bottom_offset
+    ], true);
+}
+
+module port(x_dir = 1, y_dir = 1) {
+    difference() {
+        port_sub(x_dir, y_dir, path_radius  * 2);
+        port_sub(x_dir, y_dir, path_radius);
+    }
+}
+
+module port_lateral(y_dir = 1) {
+    difference() {
+        port_lateral_sub(y_dir, path_radius * 2);
+        port_lateral_sub(y_dir, path_radius);
+    }
+}
+
 module piece_lsb() {
     difference() {    
         base();
-        port();
-        port(-1);
+        port(1, 1);
+        port(-1, 1);
+        port(1, -1);
+        port_lateral(-1);
         bend_top();
-        //bend_bottom_right();
+        bend_bottom_right();
     }
 }
 

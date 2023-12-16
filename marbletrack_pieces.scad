@@ -7,6 +7,7 @@ path_center_offset = 1.5;
 path_radius = 6.75;
 port_bottom_offset = 2.5;
 port_length = 6;
+stacker_height = 10;
 
 /* === Derivatives === */
 base_apothem = sqrt(3) / 2 * base_radius;
@@ -31,6 +32,7 @@ csg_sub_correction = 0.01;
 primary_color = "white";
 secondary_color = "#79B51C";
 tertiary_color = "gray";
+quaternary_color = "#333";
 
 module base() {
     color(primary_color, 0.5)
@@ -106,7 +108,7 @@ module port_lateral(y_dir = 1) {
     }
 }
 
-module piece_lsb() {
+module piece_curve() {
     difference() {    
         base();
         port(1, 1);
@@ -132,6 +134,24 @@ module piece_tower() {
     tower_base();
 }
 
-piece_lsb();
+module stacker_sub(height, col) {
+    difference () {
+        color(col)
+        cylinder(r=tower_radius, h=height, $fn=6);
+        translate([0, 0, height - tower_inner_height + 0.1])
+        color(col)
+        cylinder(r=tower_inner_radius, h=tower_inner_height, $fn=6);                
+    }
+}
 
+module piece_stacker() {
+    stacker_sub(stacker_height, tertiary_color);
+}
+
+module piece_stacker_half() {
+    stacker_sub(stacker_height / 2, quaternary_color);
+}
+
+//piece_curve();
 //piece_tower();
+piece_stacker_half();

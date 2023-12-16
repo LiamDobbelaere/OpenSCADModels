@@ -137,7 +137,7 @@ module piece_tower() {
 module stacker_sub(height, col) {
     difference () {
         color(col)
-        cylinder(r=tower_radius, h=height, $fn=6);
+        cylinder(r1=tower_radius + 1, r2=tower_radius, h=height, $fn=6);
         translate([0, 0, height - tower_inner_height + 0.1])
         color(col)
         cylinder(r=tower_inner_radius, h=tower_inner_height, $fn=6);                
@@ -154,4 +154,5 @@ module piece_stacker_half() {
 
 //piece_curve();
 //piece_tower();
-piece_stacker_half();
+//piece_stacker_half();
+piece_stacker();

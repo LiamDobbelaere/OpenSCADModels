@@ -10,6 +10,14 @@ path_center_offset = 1.5;
 path_radius = 6.75;
 port_bottom_offset = 2.5;
 port_length = 6;
+rail_gap = 7;
+rail_radius = 1.5;
+rail_small_length = 65;
+rail_decoration_radius = 9;
+rail_decoration_thickness = 2;
+rail_decoration_z_offset = 6;
+rail_decoration_length = 9;
+rail_decoration_cutoff_factor = 1.25;
 stacker_height = 10;
 
 /* === Derivatives === */
@@ -120,6 +128,52 @@ module port_sub(x_dir = 1, y_dir = 1, width = path_radius * 2) {
     ], true);
 }
 
+module rail_decoration_sub() {
+    translate([0, 0, rail_decoration_z_offset])
+    difference() {
+        rotate([0, 90, 0]) 
+        difference() {
+            cylinder(h = rail_decoration_length, r = rail_decoration_radius, center = true);
+            cylinder(h = rail_decoration_length + csg_sub_correction, r = rail_decoration_radius - rail_decoration_thickness, center = true);
+        }
+        translate([0, 0, rail_decoration_radius / 2])
+        cube([rail_decoration_length + csg_sub_correction, rail_decoration_radius * 2, rail_decoration_radius * rail_decoration_cutoff_factor], true);    
+    }    
+}
+
+module rail_cap_sub() {
+    translate([0, 0, -rail_radius * 2])
+    rotate([90, 0, 0])
+    rotate_extrude(angle = 90, convexity = 10, $fn = rotate_extrude_detail)
+    translate([rail_radius * 2, 0, 0])
+    circle(r = rail_radius);
+}
+
+module rail_cap_pair_sub(rail_length) {
+    translate([rail_length / 2, 0 , 0])
+    rail_cap_sub();
+
+    translate([-rail_length / 2, 0 , 0])
+    rotate([0, 0, 180]) {
+        rail_cap_sub();    
+    }
+}
+
+module rail_length_sub(rail_length) {
+    translate([0, rail_gap / 2 + rail_radius, 0])
+    rotate([0, 90, 0])
+    cylinder(r = rail_radius, h = rail_length, center=true, $fn = torus_detail);
+    translate([0, -(rail_gap / 2 + rail_radius), 0])
+    rotate([0, 90, 0])
+    cylinder(r = rail_radius, h = rail_length, center=true, $fn = torus_detail);
+    
+    translate([0, rail_radius + rail_gap / 2, 0])
+    rail_cap_pair_sub(rail_length);
+
+    translate([0, -(rail_radius + rail_gap / 2), 0])
+    rail_cap_pair_sub(rail_length);
+}
+
 module util_lower_cutoff(cutoff_factor = 0) {
     cutoff = base_apothem * cutoff_factor;
     
@@ -200,9 +254,18 @@ module piece_threeway() {
     }
 }
 
+module piece_rail_small() {
+    rail_length_sub(rail_small_length);
+    translate([25, 0, 0])
+    rail_decoration_sub();
+    translate([-25, 0, 0])
+    rail_decoration_sub();
+}
+
 /* === Piece generation === */
 if (piece == "curve") piece_curve();
 if (piece == "tower") piece_tower();
 if (piece == "stacker_half") piece_stacker_half();
 if (piece == "stacker") piece_stacker();
 if (piece == "threeway") piece_threeway();
+if (piece == "rail_small") piece_rail_small();

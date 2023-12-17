@@ -12,7 +12,7 @@ port_bottom_offset = 2.5;
 port_length = 6;
 rail_gap = 7;
 rail_radius = 1.5;
-rail_small_length = 65;
+rail_small_length = 67;
 rail_decoration_radius = 9;
 rail_decoration_thickness = 2;
 rail_decoration_z_offset = 6;
@@ -256,9 +256,9 @@ module piece_threeway() {
 
 module piece_rail_small() {
     rail_length_sub(rail_small_length);
-    translate([25, 0, 0])
+    translate([27, 0, 0])
     rail_decoration_sub();
-    translate([-25, 0, 0])
+    translate([-27, 0, 0])
     rail_decoration_sub();
 }
 

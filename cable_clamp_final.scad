@@ -11,7 +11,7 @@ wire_count_a = 3;
 wire_count_b = 2;
 wire_count_c = 2;
 
-lid_gripper_length = 5;
+lid_gripper_length = 2.5;
 
 b_xoffset = get_offset(wire_thickness_a, wire_count_a, wire_thickness_b);
 c_xoffset = b_xoffset + get_offset(wire_thickness_b, wire_count_b, wire_thickness_c);
